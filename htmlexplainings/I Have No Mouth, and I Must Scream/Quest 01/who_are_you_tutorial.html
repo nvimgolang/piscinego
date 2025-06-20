@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>42 School - who-are-you</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1e1e2e;
+            --bg-secondary: #181825;
+            --bg-terminal: #11111b;
+            --text-primary: #cdd6f4;
+            --text-secondary: #a6adc8;
+            --accent-red: #f38ba8;
+            --accent-orange: #fab387;
+            --accent-yellow: #f9e2af;
+            --accent-green: #a6e3a1;
+            --border: #313244;
+            --glass: rgba(243, 139, 168, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 13px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            color: var(--accent-red);
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .nav-item {
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--glass);
+            border-left-color: var(--accent-red);
+        }
+
+        .nav-item.active {
+            background: var(--glass);
+            border-left-color: var(--accent-red);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .terminal {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+            min-height: 120px;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+            margin-right: 12px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot.red { background: var(--accent-red); }
+        .dot.yellow { background: var(--accent-yellow); }
+        .dot.green { background: var(--accent-green); }
+
+        .terminal-title {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .cmd-line {
+            display: flex;
+            align-items: flex-start;
+            margin: 4px 0;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .prompt {
+            color: var(--accent-red);
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .output {
+            color: var(--text-secondary);
+            margin-left: 16px;
+            font-size: 11px;
+            word-break: break-all;
+        }
+
+        .output.json {
+            color: var(--accent-yellow);
+            white-space: pre-wrap;
+        }
+
+        .output.success {
+            color: var(--accent-green);
+        }
+
+        .step {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            margin: 12px 0;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -8px;
+            left: 16px;
+            background: var(--accent-red);
+            color: var(--bg-primary);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .step-title {
+            color: var(--accent-orange);
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .step-content {
+            font-size: 11px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .code-inline {
+            background: var(--bg-terminal);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--accent-yellow);
+            font-size: 11px;
+        }
+
+        .warning {
+            background: rgba(250, 179, 135, 0.1);
+            border-left: 3px solid var(--accent-orange);
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .success {
+            background: rgba(166, 227, 161, 0.1);
+            border-left: 3px solid var(--accent-green);
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .info {
+            background: var(--glass);
+            border-left: 3px solid var(--accent-red);
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .interactive-btn {
+            background: var(--glass);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s;
+            margin: 8px 4px;
+        }
+
+        .interactive-btn:hover {
+            background: var(--accent-red);
+            color: var(--bg-primary);
+        }
+
+        .interactive-btn.small {
+            padding: 4px 8px;
+            font-size: 10px;
+        }
+
+        .hidden { display: none; }
+
+        .typing::after {
+            content: '▌';
+            animation: blink 1s infinite;
+        }
+
+        .script-display {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            font-size: 11px;
+            white-space: pre-wrap;
+            color: var(--accent-yellow);
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">WHO_AM_I.init()</div>
+            <div class="nav-item active" onclick="showSection('story')">prologue</div>
+            <div class="nav-item" onclick="showSection('analysis')">api-analysis</div>
+            <div class="nav-item" onclick="showSection('tools')">curl + jq</div>
+            <div class="nav-item" onclick="showSection('solution')">solution</div>
+            <div class="nav-item" onclick="showSection('test')">testing</div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <span>piscinego / who-are-you</span>
+                <span style="color: var(--accent-red);">Level 1 • subject_id: 70</span>
+            </div>
+
+            <div class="content-area">
+                <div id="story" class="section">
+                    <div class="info">
+                        <strong>Сюжет:</strong> Вы проснулись в тёмной аллее... Не помните кто вы... Единственное что приходит в голову - бирка: <code class="code-inline">subject Id: 70</code>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Задача</div>
+                        <div class="step-content">
+                            Создать <code class="code-inline">who-are-you.sh</code> который напомнит кто вы, показав только ваше имя.<br><br>
+                            <strong>Инструменты:</strong> <code class="code-inline">curl</code> и <code class="code-inline">jq</code><br>
+                            <strong>API:</strong> https://01.tomorrow-school.ai/assets/superhero/all.json<br>
+                            <strong>Вывод:</strong> только имя персонажа с id 70
+                        </div>
+                    </div>
+
+                    <button class="interactive-btn" onclick="showSection('analysis')">Исследовать API</button>
+                </div>
+
+                <div id="analysis" class="section hidden">
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Анализ API</div>
+                        <div class="step-content">
+                            Сначала посмотрим что содержится в API и найдём структуру данных
+                        </div>
+                    </div>
+
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <div class="terminal-title">API Analysis</div>
+                        </div>
+                        <div id="api-commands"></div>
+                    </div>
+
+                    <button class="interactive-btn" onclick="exploreAPI()">Исследовать API</button>
+                    <button class="interactive-btn" onclick="findSubject70()">Найти subject 70</button>
+                </div>
+
+                <div id="tools" class="section hidden">
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">curl + jq инструменты</div>
+                        <div class="step-content">
+                            <strong>curl</strong> - для получения данных с сервера<br>
+                            <strong>jq</strong> - для парсинга и фильтрации JSON
+                        </div>
+                    </div>
+
+                    <div class="warning">
+                        <strong>jq синтаксис:</strong><br>
+                        <code class="code-inline">.[]</code> - итерация по массиву<br>
+                        <code class="code-inline">select(.id == 70)</code> - фильтрация по условию<br>
+                        <code class="code-inline">.name</code> - извлечение поля name
+                    </div>
+
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <div class="terminal-title">jq Examples</div>
+                        </div>
+                        <div id="jq-examples"></div>
+                    </div>
+
+                    <button class="interactive-btn" onclick="showJQExamples()">Примеры jq</button>
+                </div>
+
+                <div id="solution" class="section hidden">
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Решение</div>
+                        <div class="step-content">
+                            Собираем всё вместе: curl + jq для поиска имени по id 70
+                        </div>
+                    </div>
+
+                    <div class="script-display" id="final-script"></div>
+
+                    <div class="success">
+                        <strong>Логика:</strong><br>
+                        1. curl получает JSON с сервера<br>
+                        2. jq фильтрует массив по id == 70<br>
+                        3. Извлекаем поле .name<br>
+                        4. -r убирает кавычки из вывода
+                    </div>
+
+                    <button class="interactive-btn" onclick="showSolution()">Показать решение</button>
+                </div>
+
+                <div id="test" class="section hidden">
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-title">Тестирование</div>
+                        <div class="step-content">
+                            Проверяем работу скрипта и правильность вывода
+                        </div>
+                    </div>
+
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <div class="terminal-title">Testing who-are-you.sh</div>
+                        </div>
+                        <div id="test-commands"></div>
+                    </div>
+
+                    <button class="interactive-btn" onclick="testScript()">Тестировать скрипт</button>
+                    <button class="interactive-btn" onclick="checkOutput()">Проверить формат</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+
+        function typeWriter(element, text, speed = 30) {
+            let i = 0;
+            element.innerHTML = '';
+            element.classList.add('typing');
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.classList.remove('typing');
+                }
+            }
+            type();
+        }
+
+        function addCommand(container, command, output = '', isSuccess = false) {
+            const cmdDiv = document.createElement('div');
+            cmdDiv.className = 'cmd-line';
+            cmdDiv.innerHTML = `<span class="prompt">$</span><span>${command}</span>`;
+            container.appendChild(cmdDiv);
+            
+            if (output) {
+                setTimeout(() => {
+                    const outputDiv = document.createElement('div');
+                    outputDiv.className = `output ${isSuccess ? 'success' : ''}`;
+                    outputDiv.innerHTML = output;
+                    container.appendChild(outputDiv);
+                }, 800);
+            }
+        }
+
+        function exploreAPI() {
+            const container = document.getElementById('api-commands');
+            container.innerHTML = '';
+            
+            setTimeout(() => {
+                addCommand(container, 'curl -s https://01.tomorrow-school.ai/assets/superhero/all.json | head', 
+                '[<br>&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;"id": 1,<br>&nbsp;&nbsp;&nbsp;&nbsp;"name": "A-Bomb",<br>&nbsp;&nbsp;&nbsp;&nbsp;"powerstats": {...}<br>&nbsp;&nbsp;},<br>&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;"id": 2,<br>&nbsp;&nbsp;&nbsp;&nbsp;"name": "Abe Sapien"<br>&nbsp;&nbsp;}<br>]');
+            }, 500);
+        }
+
+        function findSubject70() {
+            const container = document.getElementById('api-commands');
+            
+            setTimeout(() => {
+                addCommand(container, 'curl -s https://01.tomorrow-school.ai/assets/superhero/all.json | jq \'.[] | select(.id == 70)\'', 
+                '{<br>&nbsp;&nbsp;"id": 70,<br>&nbsp;&nbsp;"name": "Batman",<br>&nbsp;&nbsp;"powerstats": {<br>&nbsp;&nbsp;&nbsp;&nbsp;"intelligence": "100",<br>&nbsp;&nbsp;&nbsp;&nbsp;"strength": "26"<br>&nbsp;&nbsp;}<br>}', true);
+            }, 2000);
+        }
+
+        function showJQExamples() {
+            const container = document.getElementById('jq-examples');
+            container.innerHTML = '';
+            
+            const examples = [
+                ['jq \'.[]\'', 'Итерация по каждому элементу массива'],
+                ['jq \'.[] | select(.id == 70)\'', 'Фильтрация: только элемент с id 70'],
+                ['jq \'.[] | select(.id == 70) | .name\'', 'Извлечение поля name'],
+                ['jq -r \'.[] | select(.id == 70) | .name\'', 'Убираем кавычки из вывода']
+            ];
+            
+            examples.forEach((example, index) => {
+                setTimeout(() => {
+                    addCommand(container, example[0], example[1]);
+                }, index * 1500);
+            });
+        }
+
+        function showSolution() {
+            const script = `#!/bin/bash
+
+# Получаем данные с API и ищем героя с id 70
+# curl -s: тихий режим (без прогресса)
+# jq '.[]': итерируем по массиву
+# select(.id == 70): фильтруем по id
+# .name: извлекаем имя
+# -r: убираем кавычки
+
+curl -s https://01.tomorrow-school.ai/assets/superhero/all.json | jq -r '.[] | select(.id == 70) | .name'`;
+            
+            typeWriter(document.getElementById('final-script'), script);
+        }
+
+        function testScript() {
+            const container = document.getElementById('test-commands');
+            container.innerHTML = '';
+            
+            setTimeout(() => {
+                addCommand(container, 'chmod +x who-are-you.sh', '');
+            }, 500);
+            
+            setTimeout(() => {
+                addCommand(container, './who-are-you.sh', 'Batman', true);
+            }, 1500);
+        }
+
+        function checkOutput() {
+            const container = document.getElementById('test-commands');
+            
+            setTimeout(() => {
+                addCommand(container, './who-are-you.sh | cat -e', 'Batman$', true);
+            }, 2500);
+            
+            setTimeout(() => {
+                const note = document.createElement('div');
+                note.className = 'output success';
+                note.innerHTML = '✓ Формат корректный: только имя + символ конца строки';
+                container.appendChild(note);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

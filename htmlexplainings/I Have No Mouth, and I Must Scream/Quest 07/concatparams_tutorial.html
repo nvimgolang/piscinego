@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>42 School - concatparams</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1e1e2e;
+            --bg-secondary: #181825;
+            --bg-terminal: #11111b;
+            --text-primary: #cdd6f4;
+            --text-secondary: #a6adc8;
+            --accent-red: #f38ba8;
+            --accent-orange: #fab387;
+            --accent-yellow: #f9e2af;
+            --accent-green: #a6e3a1;
+            --accent-blue: #89b4fa;
+            --border: #313244;
+            --glass: rgba(243, 139, 168, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 13px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            color: var(--accent-red);
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .nav-item {
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--glass);
+            border-left-color: var(--accent-red);
+        }
+
+        .nav-item.active {
+            background: var(--glass);
+            border-left-color: var(--accent-red);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .terminal {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+            margin-right: 12px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot.red { background: var(--accent-red); }
+        .dot.yellow { background: var(--accent-yellow); }
+        .dot.green { background: var(--accent-green); }
+
+        .terminal-title {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .step {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            margin: 12px 0;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -8px;
+            left: 16px;
+            background: var(--accent-red);
+            color: var(--bg-primary);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .step-title {
+            color: var(--accent-orange);
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .step-content {
+            font-size: 11px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .code-inline {
+            background: var(--bg-terminal);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--accent-yellow);
+            font-size: 11px;
+        }
+
+        .warning {
+            background: rgba(250, 179, 135, 0.1);
+            border-left: 3px solid var(--accent-orange);
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .success {
+            background: rgba(166, 227, 161, 0.1);
+            border-left: 3px solid var(--accent-green);
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .info {
+            background: var(--glass);
+            border-left: 3px solid var(--accent-red);
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .interactive-btn {
+            background: var(--glass);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s;
+            margin: 8px 4px;
+        }
+
+        .interactive-btn:hover {
+            background: var(--accent-red);
+            color: var(--bg-primary);
+        }
+
+        .hidden { display: none; }
+
+        .code-display {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            font-size: 11px;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+        }
+
+        .go-keyword { color: var(--accent-red); }
+        .go-type { color: var(--accent-blue); }
+        .go-number { color: var(--accent-yellow); }
+        .go-comment { color: var(--text-secondary); }
+        .go-string { color: var(--accent-green); }
+
+        .example-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .example-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .example-title {
+            color: var(--accent-orange);
+            font-size: 11px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .cmd-line {
+            display: flex;
+            align-items: flex-start;
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        .prompt {
+            color: var(--accent-red);
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .output {
+            color: var(--text-secondary);
+            margin-left: 16px;
+            font-size: 11px;
+            white-space: pre-wrap;
+        }
+
+        .output.success {
+            color: var(--accent-green);
+        }
+
+        .animation-container {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 6px;
+            margin: 16px 0;
+            min-height: 150px;
+        }
+
+        .step-animation {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background: rgba(137, 180, 250, 0.1);
+            border-left: 3px solid var(--accent-blue);
+            font-size: 11px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.5s ease;
+        }
+
+        .step-animation.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">CONCAT.params()</div>
+            <div class="nav-item active" onclick="showSection('task')">задача</div>
+            <div class="nav-item" onclick="showSection('algorithm')">алгоритм</div>
+            <div class="nav-item" onclick="showSection('solution')">решение</div>
+            <div class="nav-item" onclick="showSection('test')">тестирование</div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <span>piscinego / concatparams.go</span>
+                <span style="color: var(--accent-red);">Level 13 • String concatenation</span>
+            </div>
+
+            <div class="content-area">
+                <div id="task" class="section">
+                    <div class="info">
+                        <strong>Задача:</strong> Объединить слайс строк в одну строку с разделителем \n
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Понимание задачи</div>
+                        <div class="step-content">
+                            <strong>Функция:</strong> <code class="code-inline">ConcatParams(args []string) string</code><br>
+                            <strong>Вход:</strong> ["Hello", "how", "are", "you?"]<br>
+                            <strong>Выход:</strong> "Hello\nhow\nare\nyou?"<br>
+                            <strong>Разделитель:</strong> <code class="code-inline">\n</code> (перенос строки)
+                        </div>
+                    </div>
+
+                    <div class="example-box">
+                        <div class="example-item">
+                            <div class="example-title">Что возвращает функция</div>
+                            <code class="code-inline">"Hello\nhow\nare\nyou?"</code><br>
+                            (одна строка с символами \n)
+                        </div>
+                        <div class="example-item">
+                            <div class="example-title">Что видим в терминале</div>
+                            Hello<br>
+                            how<br>
+                            are<br>
+                            you?<br>
+                            (fmt.Println обрабатывает \n)
+                        </div>
+                    </div>
+
+                    <div class="warning">
+                        <strong>Важно:</strong> Функция возвращает строку с \n символами, а fmt.Println() переводит их в реальные переносы строк
+                    </div>
+
+                    <button class="interactive-btn" onclick="showSection('algorithm')">Алгоритм</button>
+                </div>
+
+                <div id="algorithm" class="section hidden">
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Алгоритм решения</div>
+                        <div class="step-content">
+                            Пошаговое объединение строк без импорта пакетов
+                        </div>
+                    </div>
+
+                    <div class="animation-container">
+                        <div class="example-title" style="margin-bottom: 16px;">Объединение ["Hello", "how", "are"]</div>
+                        <div id="concat-steps"></div>
+                    </div>
+
+                    <div class="success">
+                        <strong>Логика:</strong><br>
+                        1. Начинаем с пустой строки<br>
+                        2. Для каждого элемента (кроме первого) добавляем \n<br>
+                        3. Добавляем текущий элемент<br>
+                        4. Возвращаем результат
+                    </div>
+
+                    <button class="interactive-btn" onclick="animateConcat()">Показать алгоритм</button>
+                    <button class="interactive-btn" onclick="showSection('solution')">Решение</button>
+                </div>
+
+                <div id="solution" class="section hidden">
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Код решения</div>
+                        <div class="step-content">
+                            Простая ручная конкатенация без импортов
+                        </div>
+                    </div>
+
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <div class="terminal-title">concatparams.go</div>
+                        </div>
+                        <div class="code-display" id="go-solution"></div>
+                    </div>
+
+                    <div class="success">
+                        <strong>Ключевые моменты:</strong><br>
+                        • Проверка пустого слайса<br>
+                        • Условие i > 0 для добавления \n<br>
+                        • Простая конкатенация строк<br>
+                        • Никаких импортов
+                    </div>
+
+                    <button class="interactive-btn" onclick="showGoSolution()">Показать код</button>
+                    <button class="interactive-btn" onclick="showSection('test')">Тестирование</button>
+                </div>
+
+                <div id="test" class="section hidden">
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Тестирование</div>
+                        <div class="step-content">
+                            Проверка функции с примером из задания
+                        </div>
+                    </div>
+
+                    <div class="terminal">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <div class="dot red"></div>
+                                <div class="dot yellow"></div>
+                                <div class="dot green"></div>
+                            </div>
+                            <div class="terminal-title">go run .</div>
+                        </div>
+                        <div id="test-output"></div>
+                    </div>
+
+                    <button class="interactive-btn" onclick="runTests()">Запустить тест</button>
+                    <button class="interactive-btn" onclick="showMainExample()">Показать main.go</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+
+        function addCommand(container, command, output = '', isSuccess = false) {
+            const cmdDiv = document.createElement('div');
+            cmdDiv.className = 'cmd-line';
+            cmdDiv.innerHTML = `<span class="prompt">$</span><span>${command}</span>`;
+            container.appendChild(cmdDiv);
+            
+            if (output) {
+                setTimeout(() => {
+                    const outputDiv = document.createElement('div');
+                    outputDiv.className = `output ${isSuccess ? 'success' : ''}`;
+                    outputDiv.innerHTML = output;
+                    container.appendChild(outputDiv);
+                }, 800);
+            }
+        }
+
+        function animateConcat() {
+            const container = document.getElementById('concat-steps');
+            container.innerHTML = '';
+            
+            const steps = [
+                'result = "" (начальная пустая строка)',
+                'i=0: result = "" + "Hello" = "Hello"',
+                'i=1: result = "Hello" + "\\n" + "how" = "Hello\\nhow"',
+                'i=2: result = "Hello\\nhow" + "\\n" + "are" = "Hello\\nhow\\nare"',
+                'Возвращаем: "Hello\\nhow\\nare"'
+            ];
+            
+            steps.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'step-animation';
+                stepDiv.textContent = step;
+                container.appendChild(stepDiv);
+                
+                setTimeout(() => {
+                    stepDiv.classList.add('active');
+                }, index * 1200);
+            });
+        }
+
+        function showGoSolution() {
+            const goCode = `<span class="go-keyword">package</span> piscine
+
+<span class="go-keyword">func</span> ConcatParams(args []<span class="go-keyword">string</span>) <span class="go-keyword">string</span> {
+    <span class="go-comment">// Проверка пустого слайса</span>
+    <span class="go-keyword">if</span> <span class="go-keyword">len</span>(args) == <span class="go-number">0</span> {
+        <span class="go-keyword">return</span> <span class="go-string">""</span>
+    }
+    
+    <span class="go-comment">// Ручная конкатенация с \\n между элементами</span>
+    result := <span class="go-string">""</span>
+    <span class="go-keyword">for</span> i, arg := <span class="go-keyword">range</span> args {
+        <span class="go-comment">// Добавляем \\n перед каждым элементом кроме первого</span>
+        <span class="go-keyword">if</span> i > <span class="go-number">0</span> {
+            result += <span class="go-string">"\\n"</span>
+        }
+        result += arg
+    }
+    
+    <span class="go-keyword">return</span> result
+}`;
+            
+            document.getElementById('go-solution').innerHTML = goCode;
+        }
+
+        function runTests() {
+            const container = document.getElementById('test-output');
+            container.innerHTML = '';
+            
+            setTimeout(() => {
+                addCommand(container, 'go run .', 'Hello\nhow\nare\nyou?', true);
+            }, 500);
+        }
+
+        function showMainExample() {
+            const container = document.getElementById('test-output');
+            
+            setTimeout(() => {
+                const mainCode = document.createElement('div');
+                mainCode.className = 'output';
+                mainCode.innerHTML = `<span style="color: var(--accent-blue);">main.go:</span><br><br><span class="go-keyword">package</span> main<br><br><span class="go-keyword">import</span> (<br>&nbsp;&nbsp;<span class="go-string">"fmt"</span><br>&nbsp;&nbsp;<span class="go-string">"piscine"</span><br>)<br><br><span class="go-keyword">func</span> main() {<br>&nbsp;&nbsp;test := []<span class="go-keyword">string</span>{<span class="go-string">"Hello"</span>, <span class="go-string">"how"</span>, <span class="go-string">"are"</span>, <span class="go-string">"you?"</span>}<br>&nbsp;&nbsp;fmt.Println(piscine.ConcatParams(test))<br>}`;
+                container.appendChild(mainCode);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
